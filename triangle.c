@@ -12,9 +12,26 @@ static int max(int a, int b)
     return a > b ? a : b;
 }
 
+Vector3 barycentric_coords(Vector2i* p, Vector2i* v1, Vector2i* v2, Vector2i* v3)
+{
+    float w1 = (float)((v2->y - v3->y) * (p->x - v3->x) + (v3->x - v2->x) * (p->y - v3->y))
+        / ((v2->y - v3->y) * (v1->x - v3->x) + (v3->x - v2->x) * (v1->y - v3->y));
+
+    float w2 = (float)((v3->y - v1->y) * (p->x - v3->x) + (v1->x - v3->x) * (p->y - v3->y))
+        / ((v2->y - v3->y) * (v1->x - v3->x) + (v3->x - v2->x) * (v1->y - v3->y));
+
+    float w3 = 1 - w1 - w2;
+
+    Vector3 bary = { w1, w2, w3 };
+
+    return bary;
+}
+
 bool triangle_edge_function(Vector2i* a, Vector2i* b, Vector2i* c)
 {
+    // printf("%d\n", (c->x - a->x) * (b->y - a->y) - (c->y - a->y) * (b->x - a->x));
     return ((c->x - a->x) * (b->y - a->y) - (c->y - a->y) * (b->x - a->x) >= 0);
+    // return (b->x-a->x)*(c->y-a->y) - (b->y-a->y)*(c->x-a->x) <= 0;
 }
 
 Triangle triangle_to_camspace(Triangle* t, Matrix4* csm)
@@ -49,7 +66,7 @@ BBox triangle_get_bbox(Vector2i* v1, Vector2i* v2, Vector2i* v3)
     return box;
 }
 
-void render_triangle(Triangle* t, uint32_t pixels[], int res_x, int res_y)
+void render_triangle(Triangle* t, uint32_t pixels[], float z_buffer[], int res_x, int res_y)
 {
     Vector2i v1 = to_raster_space((Vector2) { t->v1.x, t->v1.y }, res_x, res_y);
     Vector2i v2 = to_raster_space((Vector2) { t->v2.x, t->v2.y }, res_x, res_y);
@@ -59,17 +76,17 @@ void render_triangle(Triangle* t, uint32_t pixels[], int res_x, int res_y)
 
     for (int y = bbox.topleft.y; y < bbox.bottomright.y; y++) {
         for (int x = bbox.topleft.x; x < bbox.bottomright.x; x++) {
-            //TODO: depth calculation and z-buffer
             if (x >= 0 && x <= res_x - 1 && y >= 0 && y <= res_y - 1) {
-                bool inside = true;
                 Vector2i p = { x, y };
-                // Vector3 pc = raster_to_camspace(&p, res_x, res_y);
-                inside &= triangle_edge_function(&v1, &v2, &p);
-                inside &= triangle_edge_function(&v2, &v3, &p);
-                inside &= triangle_edge_function(&v3, &v1, &p);
+                Vector3 bary = barycentric_coords(&p, &v1, &v2, &v3);
+                bool inside = bary.x >= 0 && bary.y >= 0 && bary.z >= 0;
 
                 if (inside) {
-                    pixels[y * res_x + x] = t->color;
+                    float depth = 1 / (bary.x * (1 / t->v1.z) + bary.y * (1 / t->v2.z) + bary.z * (1 / t->v3.z));
+                    if (depth < z_buffer[y * res_x + x]) {
+                        pixels[y * res_x + x] = t->color;
+                        z_buffer[y * res_x + x] = depth;
+                    }
                 }
             }
         }

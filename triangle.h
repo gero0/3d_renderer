@@ -18,4 +18,4 @@ Triangle
 triangle_to_camspace(Triangle* t, Matrix4* csm);
 Triangle project_triangle(Triangle* t, float depth);
 BBox triangle_get_bbox(Vector2i* v1, Vector2i* v2, Vector2i* v3);
-void render_triangle(Triangle* t, uint32_t pixels[], int res_x, int res_y);
+void render_triangle(Triangle* t, uint32_t pixels[], float z_buffer[], int res_x, int res_y);

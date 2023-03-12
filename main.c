@@ -14,9 +14,12 @@ float fov_to_canvas_z(float fov_deg)
     return 1.0 / tan(rad / 2);
 }
 
-void clear_screen(uint32_t pixels[], int res_x, int res_y)
+void clear_screen(uint32_t pixels[], float* z_buffer, int res_x, int res_y)
 {
     memset(pixels, 0, sizeof(uint32_t) * res_x * res_y);
+    for (size_t i = 0; i < res_x * res_y; ++i) {
+        z_buffer[i] = 999999.9;
+    }
 }
 
 void render_point(Vector2 point, uint32_t pixels[], int res_x, int res_y)
@@ -44,7 +47,9 @@ int main(void)
     struct mfb_window* window = mfb_open("00_basic_window", res_x, res_y);
 
     uint32_t* pixels = (uint32_t*)malloc(sizeof(uint32_t) * res_x * res_y);
-    memset(pixels, 0, sizeof(uint32_t) * res_x * res_y);
+    float* z_buffer = (float*)malloc(sizeof(float) * res_x * res_y);
+
+    clear_screen(pixels, z_buffer, res_x, res_y);
 
     Vector3 cam_pos = { 0.0, 0.0, 4.0 };
     Vector3 up_dir = { 0.0, 1.0, 0.0 };
@@ -84,6 +89,7 @@ int main(void)
         { { 1, -1, 1 }, { 0, 1, 0 }, { 1, -1, -1 }, 0x00FF0000 },
         { { 1, -1, -1 }, { 0, 1, 0 }, { -1, -1, -1 }, 0x00FFFF00 },
         { { -1, -1, -1 }, { 0, 1, 0 }, { -1, -1, 1 }, 0x000000FF },
+        { { -1, -1, -1 }, { 0, 2, -1 }, { 1, -1, 1 }, 0x00FFFFFF },
     };
 
     float fov
@@ -94,9 +100,9 @@ int main(void)
         // Vector3 cam_pos = { r * sin(p * M_PI), 0, r * cos(p * M_PI) };
         // Vector3 cam_pos = { 3 * sin(p * M_PI), 0, 4.0};
         // Vector3 cam_pos = { 0.0, 3 * sin(p * M_PI), 4.0 };
-        // Vector3 cam_pos = { r * sin(p * M_PI), 0, r * cos(p * M_PI) };
+        Vector3 cam_pos = { r * sin(p * M_PI), 0, r * cos(p * M_PI) };
         // Vector3 cam_pos = { r * sin(p * M_PI), 3 * sin(p * M_PI), r * cos(p * M_PI) };
-        // Vector3 look_dir = { sin(p * M_PI), 0.0, cos(p * M_PI) };
+        Vector3 look_dir = { sin(p * M_PI), 0.0, cos(p * M_PI) };
         // Vector3 look_dir = { sin(p * M_PI), 0.0, 1.0 };
         // Vector3 look_dir = { 0.0, sin(p * M_PI), 1.0 };
         // Vector3 look_dir = { 0, 0.0, 1.0 };
@@ -110,7 +116,7 @@ int main(void)
         u = vec3_norm(&u);
         Matrix4 csm = camspace_matrix(&r, &u, &look_dir, &cam_pos);
 
-        clear_screen(pixels, res_x, res_y);
+        clear_screen(pixels, z_buffer, res_x, res_y);
 
         // for (int i = 0; i < sizeof(lines) / sizeof(Line3d); i++) {
         //     Line3d line = line_to_camspace(lines[i], csm);
@@ -123,7 +129,7 @@ int main(void)
         for (int i = 0; i < sizeof(triangles) / sizeof(Triangle); i++) {
             Triangle t = triangle_to_camspace(&triangles[i], &csm);
             t = project_triangle(&t, depth);
-            render_triangle(&t, pixels, res_x, res_y);
+            render_triangle(&t, pixels, z_buffer, res_x, res_y);
         }
 
         // for (int i = 0; i < sizeof(points) / sizeof(Vector3); i++) {
