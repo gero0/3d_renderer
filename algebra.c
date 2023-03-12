@@ -41,10 +41,10 @@ Matrix4 camspace_matrix(Vector3* r, Vector3* u, Vector3* d, Vector3* e)
     Vector3 neg_d = vec3_neg(d);
 
     Matrix4 mx = {
-        r->x, r->y, r->z, vec3_dot(r, &neg_e),
-        u->x, u->y, u->z, vec3_dot(u, &neg_e),
-        neg_d.x, neg_d.y, neg_d.z, vec3_dot(d, e),
-        0.0, 0.0, 0.0, 1.0
+        { r->x, r->y, r->z, vec3_dot(r, &neg_e),
+            u->x, u->y, u->z, vec3_dot(u, &neg_e),
+            neg_d.x, neg_d.y, neg_d.z, vec3_dot(d, e),
+            0.0, 0.0, 0.0, 1.0 }
     };
 
     return mx;
@@ -77,4 +77,24 @@ Vector3 to_camspace(Vector3* wc, Matrix4* csm)
     };
 
     return camera_coords;
+}
+
+Vector2 project(Vector3 point, float depth)
+{
+    Vector2 projected_point = { point.x * depth / point.z, point.y * depth / point.z };
+    return projected_point;
+}
+
+Vector3 project3(Vector3 point, float depth)
+{
+    Vector3 projected_point = { point.x * depth / point.z, point.y * depth / point.z, point.z };
+    return projected_point;
+}
+
+Vector2i to_raster_space(Vector2 point, int res_x, int res_y)
+{
+    int x = (1 + point.x) / 2 * (res_x - 1);
+    int y = (res_y - 1) - (1 + point.y) / 2 * (res_y - 1);
+    Vector2i v = { x, y };
+    return v;
 }
