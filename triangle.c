@@ -60,9 +60,10 @@ void render_triangle(Triangle* t, uint32_t pixels[], int res_x, int res_y)
     for (int y = bbox.topleft.y; y < bbox.bottomright.y; y++) {
         for (int x = bbox.topleft.x; x < bbox.bottomright.x; x++) {
             //TODO: depth calculation and z-buffer
-            if (x > 0 && x < res_x - 1 && y > 0 && y < res_y - 1) {
+            if (x >= 0 && x <= res_x - 1 && y >= 0 && y <= res_y - 1) {
                 bool inside = true;
-                Vector2i p = {x, y};
+                Vector2i p = { x, y };
+                // Vector3 pc = raster_to_camspace(&p, res_x, res_y);
                 inside &= triangle_edge_function(&v1, &v2, &p);
                 inside &= triangle_edge_function(&v2, &v3, &p);
                 inside &= triangle_edge_function(&v3, &v1, &p);

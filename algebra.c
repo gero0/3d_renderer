@@ -98,3 +98,12 @@ Vector2i to_raster_space(Vector2 point, int res_x, int res_y)
     Vector2i v = { x, y };
     return v;
 }
+
+Vector3 raster_to_camspace(Vector2i* pixel, int res_x, int res_y)
+{
+    float x = (2.0 * pixel->x) / (res_x -1) - 1.0;
+    float y = (-2.0 * pixel->y) / (res_y -1) + 1.0;
+
+    Vector3 point = { x, y, 0 };
+    return point;
+}

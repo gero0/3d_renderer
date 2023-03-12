@@ -30,3 +30,4 @@ Vector3 to_camspace(Vector3* wc, Matrix4* csm);
 Vector2 project(Vector3 point, float depth);
 Vector3 project3(Vector3 point, float depth);
 Vector2i to_raster_space(Vector2 point, int res_x, int res_y);
+Vector3 raster_to_camspace(Vector2i* pixel, int res_x, int res_y);

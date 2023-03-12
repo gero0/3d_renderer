@@ -94,9 +94,9 @@ int main(void)
         // Vector3 cam_pos = { r * sin(p * M_PI), 0, r * cos(p * M_PI) };
         // Vector3 cam_pos = { 3 * sin(p * M_PI), 0, 4.0};
         // Vector3 cam_pos = { 0.0, 3 * sin(p * M_PI), 4.0 };
-        Vector3 cam_pos = { r * sin(p * M_PI), 0, r * cos(p * M_PI) };
+        // Vector3 cam_pos = { r * sin(p * M_PI), 0, r * cos(p * M_PI) };
         // Vector3 cam_pos = { r * sin(p * M_PI), 3 * sin(p * M_PI), r * cos(p * M_PI) };
-        Vector3 look_dir = { sin(p * M_PI), 0.0, cos(p * M_PI) };
+        // Vector3 look_dir = { sin(p * M_PI), 0.0, cos(p * M_PI) };
         // Vector3 look_dir = { sin(p * M_PI), 0.0, 1.0 };
         // Vector3 look_dir = { 0.0, sin(p * M_PI), 1.0 };
         // Vector3 look_dir = { 0, 0.0, 1.0 };
