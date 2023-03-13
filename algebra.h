@@ -6,6 +6,12 @@ typedef struct Vector3 {
     float z;
 } Vector3;
 
+typedef struct Vector3i {
+    int x;
+    int y;
+    int z;
+} Vector3i;
+
 typedef struct Vector2 {
     float x;
     float y;

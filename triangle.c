@@ -40,7 +40,11 @@ Triangle triangle_to_camspace(Triangle* t, Matrix4* csm)
         to_camspace(&t->v1, csm),
         to_camspace(&t->v2, csm),
         to_camspace(&t->v3, csm),
-        t->color
+        {
+            t->colors[0],
+            t->colors[1],
+            t->colors[2],
+        }
     };
     return ct;
 }
@@ -51,7 +55,11 @@ Triangle project_triangle(Triangle* t, float depth)
         project3(t->v1, depth),
         project3(t->v2, depth),
         project3(t->v3, depth),
-        t->color
+        {
+            t->colors[0],
+            t->colors[1],
+            t->colors[2],
+        }
     };
     return projected;
 }
@@ -64,6 +72,18 @@ BBox triangle_get_bbox(Vector2i* v1, Vector2i* v2, Vector2i* v3)
     int max_y = max(v1->y, max(v2->y, v3->y));
     BBox box = { { min_x, min_y }, { max_x, max_y } };
     return box;
+}
+
+uint32_t calculate_color(Triangle* t, Vector3* bary)
+{
+    uint32_t avg_red = bary->x * t->colors[0].r + bary->y * t->colors[1].r + bary->z * t->colors[2].r;
+    uint32_t avg_green = bary->x * t->colors[0].g + bary->y * t->colors[1].g + bary->z * t->colors[2].g;
+    uint32_t avg_blue = bary->x * t->colors[0].b + bary->y * t->colors[1].b + bary->z * t->colors[2].b;
+
+    // printf("%d %d %d\n", avg_red, avg_green, avg_blue);
+
+    uint32_t color = avg_blue | (avg_green << 8) | (avg_red << 16);
+    return color;
 }
 
 void render_triangle(Triangle* t, uint32_t pixels[], float z_buffer[], int res_x, int res_y)
@@ -83,8 +103,10 @@ void render_triangle(Triangle* t, uint32_t pixels[], float z_buffer[], int res_x
 
                 if (inside) {
                     float depth = 1 / (bary.x * (1 / t->v1.z) + bary.y * (1 / t->v2.z) + bary.z * (1 / t->v3.z));
+
                     if (depth < z_buffer[y * res_x + x]) {
-                        pixels[y * res_x + x] = t->color;
+
+                        pixels[y * res_x + x] = calculate_color(t, &bary);
                         z_buffer[y * res_x + x] = depth;
                     }
                 }

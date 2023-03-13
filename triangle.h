@@ -2,11 +2,17 @@
 #include "algebra.h"
 #include "stdint.h"
 
+typedef struct RgbColor {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+} RgbColor;
+
 typedef struct Triangle {
     Vector3 v1;
     Vector3 v2;
     Vector3 v3;
-    uint32_t color;
+    RgbColor colors[3];
 } Triangle;
 
 typedef struct BBox {

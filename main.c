@@ -33,12 +33,17 @@ void render_point(Vector2 point, uint32_t pixels[], int res_x, int res_y)
 
 bool visible(Vector3 point, float depth)
 {
-    return point.z > depth;
+    return point.z > 0.1;
 }
 
 bool line_visible(Line3d line, float depth)
 {
     return visible(line.a, depth) && visible(line.b, depth);
+}
+
+bool triangle_visible(Triangle* t, float depth)
+{
+    return visible(t->v1, depth) && visible(t->v2, depth) && visible(t->v3, depth);
 }
 
 int main(void)
@@ -85,11 +90,11 @@ int main(void)
     };
 
     Triangle triangles[] = {
-        { { -1, -1, 1 }, { 0, 1, 0 }, { 1, -1, 1 }, 0x0000FF00 },
-        { { 1, -1, 1 }, { 0, 1, 0 }, { 1, -1, -1 }, 0x00FF0000 },
-        { { 1, -1, -1 }, { 0, 1, 0 }, { -1, -1, -1 }, 0x00FFFF00 },
-        { { -1, -1, -1 }, { 0, 1, 0 }, { -1, -1, 1 }, 0x000000FF },
-        { { -1, -1, -1 }, { 0, 2, -1 }, { 1, -1, 1 }, 0x00FFFFFF },
+        { { -1, -1, 1 }, { 0, 1, 0 }, { 1, -1, 1 }, { { 255, 0, 0 }, { 0, 255, 0 }, { 0, 0, 255 } } },
+        { { 1, -1, 1 }, { 0, 1, 0 }, { 1, -1, -1 }, { { 0, 0, 0 }, { 255, 0, 0 }, { 0, 0, 0 } } },
+        { { 1, -1, -1 }, { 0, 1, 0 }, { -1, -1, -1 }, { { 0, 255, 0 }, { 0, 255, 0 }, { 0, 255, 0 } } },
+        { { -1, -1, -1 }, { 0, 1, 0 }, { -1, -1, 1 }, { { 0, 0, 255 }, { 0, 0, 255 }, { 0, 0, 255 } } },
+        { { -1, -1, -1 }, { 0, 2, -1 }, { 1, -1, 1 }, { { 0, 0, 0 }, { 255, 255, 255 }, { 0, 0, 0 } } },
     };
 
     float fov
@@ -129,7 +134,9 @@ int main(void)
         for (int i = 0; i < sizeof(triangles) / sizeof(Triangle); i++) {
             Triangle t = triangle_to_camspace(&triangles[i], &csm);
             t = project_triangle(&t, depth);
-            render_triangle(&t, pixels, z_buffer, res_x, res_y);
+            if (triangle_visible(&t, depth)) {
+                render_triangle(&t, pixels, z_buffer, res_x, res_y);
+            }
         }
 
         // for (int i = 0; i < sizeof(points) / sizeof(Vector3); i++) {
