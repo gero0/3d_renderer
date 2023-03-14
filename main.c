@@ -64,38 +64,12 @@ int main(void)
 
     clear_screen(pixels, z_buffer, res_x, res_y);
 
-    Vector3 cam_pos = { 0.0, 0.0, 4.0 };
+    Vector3 cam_pos = { 0.0, 0.0, -4.0 };
     Vector3 up_dir = { 0.0, 1.0, 0.0 };
     Vector3 look_dir = { 0.0, 0.0, 1.0 };
 
     float p = 0.0;
     float r = 4.0;
-
-    Vector3 points[] = {
-        { 1, -1, -1 },
-        { 1, -1, 1 },
-        { 1, 1, -1 },
-        { 1, 1, 1 },
-        { -1, -1, -1 },
-        { -1, -1, 1 },
-        { -1, 1, -1 },
-        { -1, 1, 1 }
-    };
-
-    Line3d lines[] = {
-        { points[0], points[1] },
-        { points[0], points[2] },
-        { points[0], points[4] },
-        { points[1], points[5] },
-        { points[1], points[3] },
-        { points[4], points[5] },
-        { points[4], points[6] },
-        { points[2], points[3] },
-        { points[2], points[6] },
-        { points[7], points[5] },
-        { points[7], points[3] },
-        { points[7], points[6] },
-    };
 
     Triangle triangles[] = {
         { { -1, -1, 1 }, { 0, 1, 0 }, { 1, -1, 1 }, { { 255, 0, 0 }, { 0, 255, 0 }, { 0, 0, 255 } } },

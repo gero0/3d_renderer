@@ -8,17 +8,11 @@ typedef struct RgbColor {
     uint8_t b;
 } RgbColor;
 
-//params: barycentric coords and data struct (shader-dependent)
-//returns: rgbcolor of pixel;
-typedef RgbColor (*FragmentShader)(Vector3, void*);
-
 typedef struct Triangle {
     Vector3 v1;
     Vector3 v2;
     Vector3 v3;
     RgbColor colors[3];
-    // FragmentShader shader;
-    // void* shader_data;
 } Triangle;
 
 typedef struct BBox {

@@ -29,9 +29,7 @@ Vector3 barycentric_coords(Vector2i* p, Vector2i* v1, Vector2i* v2, Vector2i* v3
 
 bool triangle_edge_function(Vector2i* a, Vector2i* b, Vector2i* c)
 {
-    // printf("%d\n", (c->x - a->x) * (b->y - a->y) - (c->y - a->y) * (b->x - a->x));
     return ((c->x - a->x) * (b->y - a->y) - (c->y - a->y) * (b->x - a->x) >= 0);
-    // return (b->x-a->x)*(c->y-a->y) - (b->y-a->y)*(c->x-a->x) <= 0;
 }
 
 Triangle triangle_to_camspace(Triangle* t, Matrix4* csm)
@@ -79,8 +77,6 @@ uint32_t calculate_color(Triangle* t, Vector3* bary)
     uint32_t avg_red = bary->x * t->colors[0].r + bary->y * t->colors[1].r + bary->z * t->colors[2].r;
     uint32_t avg_green = bary->x * t->colors[0].g + bary->y * t->colors[1].g + bary->z * t->colors[2].g;
     uint32_t avg_blue = bary->x * t->colors[0].b + bary->y * t->colors[1].b + bary->z * t->colors[2].b;
-
-    // printf("%d %d %d\n", avg_red, avg_green, avg_blue);
 
     uint32_t color = avg_blue | (avg_green << 8) | (avg_red << 16);
     return color;
