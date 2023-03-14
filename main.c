@@ -102,7 +102,7 @@ int main(void)
         { { 1, -1, 1 }, { 0, 1, 0 }, { 1, -1, -1 }, { { 0, 0, 0 }, { 255, 0, 0 }, { 0, 0, 0 } } },
         { { 1, -1, -1 }, { 0, 1, 0 }, { -1, -1, -1 }, { { 0, 255, 0 }, { 0, 255, 0 }, { 0, 255, 0 } } },
         { { -1, -1, -1 }, { 0, 1, 0 }, { -1, -1, 1 }, { { 0, 0, 255 }, { 0, 0, 255 }, { 0, 0, 255 } } },
-        { { -1, -1, -1 }, { 0, 2, -1 }, { 1, -1, 1 }, { { 0, 0, 0 }, { 255, 255, 255 }, { 0, 0, 0 } } },
+        // { { -1, -1, -1 }, { 0, 2, -1 }, { 1, -1, 1 }, { { 0, 0, 0 }, { 255, 255, 255 }, { 0, 0, 0 } } },
     };
 
     float fov
@@ -132,7 +132,7 @@ int main(void)
 
         for (int i = 0; i < sizeof(triangles) / sizeof(Triangle); i++) {
             Triangle t = triangle_to_camspace(&triangles[i], &csm);
-            Line3d normal_line = get_triangle_normal(&t, 0.2);
+            Line3d normal_line = get_triangle_normal(&t, 1.0);
             t = project_triangle(&t, depth);
             if (triangle_visible(&t, depth)) {
                 render_triangle(&t, pixels, z_buffer, res_x, res_y);

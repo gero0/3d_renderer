@@ -117,7 +117,8 @@ Vector3 triangle_normal(Triangle* t)
 {
     Vector3 v = vec3_sub(&t->v2, &t->v1);
     Vector3 w = vec3_sub(&t->v3, &t->v1);
-    return vec3_cross(&v, &w);
+    Vector3 cross = vec3_cross(&v, &w);
+    return vec3_norm(&cross);
 }
 
 Vector3 triangle_midpoint(Triangle* t)
