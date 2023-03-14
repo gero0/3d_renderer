@@ -9,6 +9,11 @@ Vector3 vec3_sub(Vector3* a, Vector3* b){
     return (Vector3) {a->x - b->x, a->y - b->y, a->z - b->z};
 }
 
+Vector3 vec3_scale(Vector3* a, float s){
+    return (Vector3) {a->x * s, a->y * s, a->z * s};
+}
+
+
 Vector3 vec3_cross(Vector3* a, Vector3* b)
 {
     Vector3 c = {

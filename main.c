@@ -27,7 +27,7 @@ void render_point(Vector2 point, uint32_t pixels[], int res_x, int res_y)
     if (point.x <= 1.0 && point.x >= -1.0 && point.y <= 1.0 && point.y >= -1.0) {
         int x = (1 + point.x) / 2 * (res_x - 1);
         int y = (res_y - 1) - (1 + point.y) / 2 * (res_y - 1);
-        pixels[y * res_x + x] = 0xFFFF00FF;
+        pixels[y * res_x + x] = 0xFFFFFFFF;
     }
 }
 
@@ -44,6 +44,14 @@ bool line_visible(Line3d line, float depth)
 bool triangle_visible(Triangle* t, float depth)
 {
     return visible(t->v1, depth) && visible(t->v2, depth) && visible(t->v3, depth);
+}
+
+Line3d get_triangle_normal(Triangle* t, float scale)
+{
+    Vector3 midpoint = triangle_midpoint(t);
+    Vector3 normal = triangle_normal(t);
+    Vector3 s_normal = vec3_scale(&normal, scale);
+    return (Line3d) { midpoint, vec3_add(&midpoint, &s_normal) };
 }
 
 int main(void)
@@ -90,11 +98,11 @@ int main(void)
     };
 
     Triangle triangles[] = {
-        { { -1, -1, 1 }, { 0, 1, 0 }, { 1, -1, 1 }, { { 255, 0, 0 }, { 0, 255, 0 }, { 0, 0, 255 } } },
-        { { 1, -1, 1 }, { 0, 1, 0 }, { 1, -1, -1 }, { { 0, 0, 0 }, { 255, 0, 0 }, { 0, 0, 0 } } },
-        { { 1, -1, -1 }, { 0, 1, 0 }, { -1, -1, -1 }, { { 0, 255, 0 }, { 0, 255, 0 }, { 0, 255, 0 } } },
-        { { -1, -1, -1 }, { 0, 1, 0 }, { -1, -1, 1 }, { { 0, 0, 255 }, { 0, 0, 255 }, { 0, 0, 255 } } },
-        { { -1, -1, -1 }, { 0, 2, -1 }, { 1, -1, 1 }, { { 0, 0, 0 }, { 255, 255, 255 }, { 0, 0, 0 } } },
+        { { 1, -1, 1 }, { 0, 1, 0 }, { -1, -1, 1 }, { { 255, 0, 0 }, { 0, 255, 0 }, { 0, 0, 255 } } },
+        { { 1, -1, -1 }, { 0, 1, 0 }, { 1, -1, 1 }, { { 0, 0, 0 }, { 255, 0, 0 }, { 0, 0, 0 } } },
+        { { -1, -1, -1 }, { 0, 1, 0 }, { 1, -1, -1 }, { { 0, 255, 0 }, { 0, 255, 0 }, { 0, 255, 0 } } },
+        { { -1, -1, 1 }, { 0, 1, 0 }, { -1, -1, -1 }, { { 0, 0, 255 }, { 0, 0, 255 }, { 0, 0, 255 } } },
+        // { { 1, -1, 1 }, { 0, 2, -1 }, { -1, -1, -1 }, { { 0, 0, 0 }, { 255, 255, 255 }, { 0, 0, 0 } } },
     };
 
     float fov
@@ -113,7 +121,6 @@ int main(void)
         // Vector3 look_dir = { 0, 0.0, 1.0 };
 
         look_dir = vec3_norm(&look_dir);
-        // cam_pos = vec3_norm(&cam_pos);
 
         Vector3 r = vec3_cross(&look_dir, &up_dir);
         Vector3 u = vec3_cross(&r, &look_dir);
@@ -123,35 +130,18 @@ int main(void)
 
         clear_screen(pixels, z_buffer, res_x, res_y);
 
-        // for (int i = 0; i < sizeof(lines) / sizeof(Line3d); i++) {
-        //     Line3d line = line_to_camspace(lines[i], csm);
-        //     if (line_visible(line, depth)) {
-        //         Line l = project_line(line, depth);
-        //         render_line(l, pixels, res_x, res_y);
-        //     }
-        // }
-
         for (int i = 0; i < sizeof(triangles) / sizeof(Triangle); i++) {
             Triangle t = triangle_to_camspace(&triangles[i], &csm);
+            Line3d normal_line = get_triangle_normal(&t, 0.2);
             t = project_triangle(&t, depth);
             if (triangle_visible(&t, depth)) {
                 render_triangle(&t, pixels, z_buffer, res_x, res_y);
-                // Vector3 normal = triangle_normal(&t);
-                // Line3d nl = {{}, normal};
-                // Line l = project_line(nl, depth);
-                // printf("%f %f %f %f\n", l.a.x, l.a.y, l.b.x, l.b.y);
-                // render_line(l, pixels, res_x, res_y);
+                if (line_visible(normal_line, depth)) {
+                    Line l = project_line(normal_line, depth);
+                    render_line(l, pixels, res_x, res_y);
+                }
             }
         }
-
-        // for (int i = 0; i < sizeof(points) / sizeof(Vector3); i++) {
-        //     Vector3 coords = to_camspace(&points[i], &csm);
-
-        //     if (visible(coords, depth)) {
-        //         Vector2 projected = project(coords, depth);
-        //         render_point(projected, pixels, res_x, res_y);
-        //     }
-        // }
 
         p += 0.01;
         if (p > 2.0) {

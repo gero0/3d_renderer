@@ -119,3 +119,12 @@ Vector3 triangle_normal(Triangle* t)
     Vector3 w = vec3_sub(&t->v3, &t->v1);
     return vec3_cross(&v, &w);
 }
+
+Vector3 triangle_midpoint(Triangle* t)
+{
+    return (Vector3) {
+        (t->v1.x + t->v2.x + t->v3.x) / 3.0,
+        (t->v1.y + t->v2.y + t->v3.y) / 3.0,
+        (t->v1.z + t->v2.z + t->v3.z) / 3.0,
+    };
+}

@@ -32,3 +32,4 @@ Triangle project_triangle(Triangle* t, float depth);
 BBox triangle_get_bbox(Vector2i* v1, Vector2i* v2, Vector2i* v3);
 void render_triangle(Triangle* t, uint32_t pixels[], float z_buffer[], int res_x, int res_y);
 Vector3 triangle_normal(Triangle* t);
+Vector3 triangle_midpoint(Triangle* t);

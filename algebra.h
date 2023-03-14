@@ -28,6 +28,7 @@ typedef struct Matrix4 {
 
 Vector3 vec3_add(Vector3* a, Vector3* b);
 Vector3 vec3_sub(Vector3* a, Vector3* b);
+Vector3 vec3_scale(Vector3* a, float s);
 Vector3 vec3_cross(Vector3* a, Vector3* b);
 Vector3 vec3_norm(Vector3* a);
 float vec3_dot(Vector3* a, Vector3* b);
