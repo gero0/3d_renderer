@@ -84,9 +84,9 @@ Matrix4 mat4_mul(Matrix4* a, Matrix4* b)
 Vector3 to_camspace(Vector3* wc, Matrix4* csm)
 {
     Vector3 camera_coords = {
-        csm->data[0] * wc->x + csm->data[1] * wc->y + csm->data[2] * wc->z + csm->data[3],
-        csm->data[4] * wc->x + csm->data[5] * wc->y + csm->data[6] * wc->z + csm->data[7],
-        csm->data[8] * wc->x + csm->data[9] * wc->y + csm->data[10] * wc->z + csm->data[11],
+        csm->data[0] * -wc->x + csm->data[1] * wc->y + csm->data[2] * wc->z + csm->data[3],
+        csm->data[4] * -wc->x + csm->data[5] * wc->y + csm->data[6] * wc->z + csm->data[7],
+        csm->data[8] * -wc->x + csm->data[9] * wc->y + csm->data[10] * wc->z + csm->data[11],
     };
 
     return camera_coords;
