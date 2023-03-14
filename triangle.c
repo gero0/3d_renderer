@@ -103,9 +103,7 @@ void render_triangle(Triangle* t, uint32_t pixels[], float z_buffer[], int res_x
 
                 if (inside) {
                     float depth = 1 / (bary.x * (1 / t->v1.z) + bary.y * (1 / t->v2.z) + bary.z * (1 / t->v3.z));
-
                     if (depth < z_buffer[y * res_x + x]) {
-
                         pixels[y * res_x + x] = calculate_color(t, &bary);
                         z_buffer[y * res_x + x] = depth;
                     }
@@ -113,4 +111,11 @@ void render_triangle(Triangle* t, uint32_t pixels[], float z_buffer[], int res_x
             }
         }
     }
+}
+
+Vector3 triangle_normal(Triangle* t)
+{
+    Vector3 v = vec3_sub(&t->v2, &t->v1);
+    Vector3 w = vec3_sub(&t->v3, &t->v1);
+    return vec3_cross(&v, &w);
 }

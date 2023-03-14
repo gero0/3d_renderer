@@ -1,6 +1,14 @@
 #include "algebra.h"
 #include <math.h>
 
+Vector3 vec3_add(Vector3* a, Vector3* b){
+    return (Vector3) {a->x + b->x, a->y + b->y, a->z + b->z};
+}
+
+Vector3 vec3_sub(Vector3* a, Vector3* b){
+    return (Vector3) {a->x - b->x, a->y - b->y, a->z - b->z};
+}
+
 Vector3 vec3_cross(Vector3* a, Vector3* b)
 {
     Vector3 c = {

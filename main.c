@@ -136,6 +136,11 @@ int main(void)
             t = project_triangle(&t, depth);
             if (triangle_visible(&t, depth)) {
                 render_triangle(&t, pixels, z_buffer, res_x, res_y);
+                // Vector3 normal = triangle_normal(&t);
+                // Line3d nl = {{}, normal};
+                // Line l = project_line(nl, depth);
+                // printf("%f %f %f %f\n", l.a.x, l.a.y, l.b.x, l.b.y);
+                // render_line(l, pixels, res_x, res_y);
             }
         }
 
