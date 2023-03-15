@@ -43,8 +43,11 @@ bool line_visible(Line3d line, float depth)
     return visible(line.a, depth) && visible(line.b, depth);
 }
 
-bool triangle_visible(Triangle* t, float depth)
+bool triangle_visible(Triangle* t, float depth, Vector3 normal)
 {
+    if(normal.z < 0){
+        return false;
+    }
     return visible(t->v1, depth) && visible(t->v2, depth) && visible(t->v3, depth);
 }
 
@@ -60,7 +63,7 @@ int main(void)
 {
     bool render_normals = false;
     Mesh mesh;
-    parse_obj_file("/home/gero/teapot.obj", &mesh);
+    parse_obj_file("/home/gero/shrek.obj", &mesh);
     const int res_x = 640, res_y = 640;
     struct mfb_window* window = mfb_open("00_basic_window", res_x, res_y);
 
@@ -96,7 +99,7 @@ int main(void)
         // Vector3 cam_pos = { 0.0, 3 * sin(p * M_PI), 4.0 };
         // Vector3 cam_pos = { r * sin(p * M_PI), 0, r * cos(p * M_PI) };
         // Vector3 cam_pos = { r * sin(p * M_PI), 3 * sin(p * M_PI), r * cos(p * M_PI) };
-        Vector3 cam_pos = { r * sin(p * M_PI), 2, r * cos(p * M_PI) };
+        Vector3 cam_pos = { r * sin(p * M_PI), 3, r * cos(p * M_PI) };
         Vector3 look_dir = { sin(p * M_PI), 0.0, cos(p * M_PI) };
         // Vector3 look_dir = { sin(p * M_PI), 0.0, 1.0 };
         // Vector3 look_dir = { 0.0, sin(p * M_PI), 1.0 };
@@ -116,7 +119,8 @@ int main(void)
             Triangle t = triangle_to_camspace(&triangles[i], &csm);
             Line3d normal_line = get_triangle_normal(&t, 1.0);
             t = project_triangle(&t, depth);
-            if (triangle_visible(&t, depth)) {
+            Vector3 proj_norm = triangle_normal(&t);
+            if (triangle_visible(&t, depth, proj_norm)) {
                 render_triangle(&t, pixels, z_buffer, res_x, res_y);
                 if (line_visible(normal_line, depth) && render_normals) {
                     Line l = project_line(normal_line, depth);
