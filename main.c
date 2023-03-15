@@ -1,5 +1,7 @@
 #include "algebra.h"
 #include "line.h"
+#include "mesh.h"
+#include "obj_parser.h"
 #include "triangle.h"
 #include <MiniFB.h>
 #include <math.h>
@@ -56,6 +58,9 @@ Line3d get_triangle_normal(Triangle* t, float scale)
 
 int main(void)
 {
+    bool render_normals = false;
+    Mesh mesh;
+    parse_obj_file("/home/gero/teapot.obj", &mesh);
     const int res_x = 640, res_y = 640;
     struct mfb_window* window = mfb_open("00_basic_window", res_x, res_y);
 
@@ -69,15 +74,17 @@ int main(void)
     Vector3 look_dir = { 0.0, 0.0, 1.0 };
 
     float p = 0.0;
-    float r = 4.0;
+    float r = 6.0;
 
-    Triangle triangles[] = {
-        { { -1, -1, 1 }, { 0, 1, 0 }, { 1, -1, 1 }, { { 255, 0, 0 }, { 0, 255, 0 }, { 0, 0, 255 } } },
-        { { 1, -1, 1 }, { 0, 1, 0 }, { 1, -1, -1 }, { { 0, 0, 0 }, { 255, 0, 0 }, { 0, 0, 0 } } },
-        { { 1, -1, -1 }, { 0, 1, 0 }, { -1, -1, -1 }, { { 0, 255, 0 }, { 0, 255, 0 }, { 0, 255, 0 } } },
-        { { -1, -1, -1 }, { 0, 1, 0 }, { -1, -1, 1 }, { { 0, 0, 255 }, { 0, 0, 255 }, { 0, 0, 255 } } },
-        // { { -1, -1, -1 }, { 0, 2, -1 }, { 1, -1, 1 }, { { 0, 0, 0 }, { 255, 255, 255 }, { 0, 0, 0 } } },
-    };
+    // Triangle triangles[] = {
+    //     { { -1, -1, 1 }, { 0, 1, 0 }, { 1, -1, 1 }, { { 255, 0, 0 }, { 0, 255, 0 }, { 0, 0, 255 } } },
+    //     { { 1, -1, 1 }, { 0, 1, 0 }, { 1, -1, -1 }, { { 255, 255, 0 }, { 255, 0, 0 }, { 0, 0, 0 } } },
+    //     { { 1, -1, -1 }, { 0, 1, 0 }, { -1, -1, -1 }, { { 0, 255, 0 }, { 0, 255, 0 }, { 0, 255, 0 } } },
+    //     { { -1, -1, -1 }, { 0, 1, 0 }, { -1, -1, 1 }, { { 0, 128, 255 }, { 128, 0, 255 }, { 128, 0, 255 } } },
+    //     // { { -1, -1, -1 }, { 0, 2, -1 }, { 1, -1, 1 }, { { 0, 0, 0 }, { 255, 255, 255 }, { 0, 0, 0 } } },
+    // };
+
+    Triangle* triangles = mesh.triangles;
 
     float fov
         = 90.0;
@@ -87,8 +94,9 @@ int main(void)
         // Vector3 cam_pos = { r * sin(p * M_PI), 0, r * cos(p * M_PI) };
         // Vector3 cam_pos = { 3 * sin(p * M_PI), 0, 4.0};
         // Vector3 cam_pos = { 0.0, 3 * sin(p * M_PI), 4.0 };
-        Vector3 cam_pos = { r * sin(p * M_PI), 0, r * cos(p * M_PI) };
+        // Vector3 cam_pos = { r * sin(p * M_PI), 0, r * cos(p * M_PI) };
         // Vector3 cam_pos = { r * sin(p * M_PI), 3 * sin(p * M_PI), r * cos(p * M_PI) };
+        Vector3 cam_pos = { r * sin(p * M_PI), 2, r * cos(p * M_PI) };
         Vector3 look_dir = { sin(p * M_PI), 0.0, cos(p * M_PI) };
         // Vector3 look_dir = { sin(p * M_PI), 0.0, 1.0 };
         // Vector3 look_dir = { 0.0, sin(p * M_PI), 1.0 };
@@ -104,13 +112,13 @@ int main(void)
 
         clear_screen(pixels, z_buffer, res_x, res_y);
 
-        for (int i = 0; i < sizeof(triangles) / sizeof(Triangle); i++) {
+        for (int i = 0; i < mesh.triangle_count; i++) {
             Triangle t = triangle_to_camspace(&triangles[i], &csm);
             Line3d normal_line = get_triangle_normal(&t, 1.0);
             t = project_triangle(&t, depth);
             if (triangle_visible(&t, depth)) {
                 render_triangle(&t, pixels, z_buffer, res_x, res_y);
-                if (line_visible(normal_line, depth)) {
+                if (line_visible(normal_line, depth) && render_normals) {
                     Line l = project_line(normal_line, depth);
                     render_line(l, pixels, res_x, res_y);
                 }

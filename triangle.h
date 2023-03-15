@@ -2,6 +2,11 @@
 #include "algebra.h"
 #include "stdint.h"
 
+#define ColorWhite {255, 255, 255}
+#define ColorRed {255, 0, 0}
+#define ColorGreen {0, 255, 0}
+#define ColorBlue {0, 0, 255}
+
 typedef struct RgbColor {
     uint8_t r;
     uint8_t g;
