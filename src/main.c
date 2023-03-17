@@ -1,3 +1,4 @@
+#include "MiniFB_enums.h"
 #include "algebra.h"
 #include "line.h"
 #include "mesh.h"
@@ -9,6 +10,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static Vector3 cam_pos = { 0.0, 3.0, 6.0 };
+static Vector3 up_dir = { 0.0, 1.0, 0.0 };
+static Vector3 look_dir = { 0.0, 0.0, -1.0 };
+
 
 float fov_to_canvas_z(float fov_deg)
 {
@@ -45,7 +51,7 @@ bool line_visible(Line3d line, float depth)
 
 bool triangle_visible(Triangle* t, float depth, Vector3 normal)
 {
-    if(normal.z < 0){
+    if (normal.z < 0) {
         return false;
     }
     return visible(t->v1, depth) && visible(t->v2, depth) && visible(t->v3, depth);
@@ -59,11 +65,55 @@ Line3d get_triangle_normal(Triangle* t, float scale)
     return (Line3d) { midpoint, vec3_add(&midpoint, &s_normal) };
 }
 
+void keyboard(struct mfb_window* window, mfb_key key, mfb_key_mod mod, bool isPressed)
+{
+    float speed = 0.2;
+    float look_speed = 0.05;
+
+    // Remember to close the window in some way
+
+    if (key == KB_KEY_S) {
+        Vector3 move_vec = vec3_scale(&look_dir, speed);
+        cam_pos = vec3_sub(&cam_pos, &move_vec);
+    } else if (key == KB_KEY_W) {
+        Vector3 move_vec = vec3_scale(&look_dir, speed);
+        cam_pos = vec3_add(&cam_pos, &move_vec);
+    } else if (key == KB_KEY_D) {
+        Vector3 right_vec = vec3_cross(&look_dir, &up_dir);
+        right_vec = vec3_norm(&right_vec);
+        right_vec = vec3_scale(&right_vec, speed);
+        cam_pos = vec3_add(&cam_pos, &right_vec);
+    } else if (key == KB_KEY_A) {
+        Vector3 right_vec = vec3_cross(&look_dir, &up_dir);
+        right_vec = vec3_norm(&right_vec);
+        right_vec = vec3_scale(&right_vec, speed);
+        cam_pos = vec3_sub(&cam_pos, &right_vec);
+    } else if (key == KB_KEY_LEFT_SHIFT) {
+        cam_pos.y += speed;
+    } else if (key == KB_KEY_LEFT_CONTROL) {
+        cam_pos.y -= speed;
+    } else if (key == KB_KEY_LEFT) {
+        look_dir.x -= look_speed;
+    } else if (key == KB_KEY_RIGHT) {
+        look_dir.x += look_speed;
+    } else if (key == KB_KEY_UP) {
+        look_dir.y += look_speed;
+    } else if (key == KB_KEY_DOWN) {
+        look_dir.y -= look_speed;
+    }
+}
+
+// Use wisely this event. It can be sent too often
+void mouse_move(struct mfb_window* window, int x, int y)
+{
+    printf("%d %d\n", x, y);
+}
+
 int main(void)
 {
     bool render_normals = false;
     Mesh mesh;
-    parse_obj_file("/home/gero/shrek.obj", &mesh);
+    parse_obj_file("/home/gero/amogus.obj", &mesh);
     const int res_x = 640, res_y = 640;
     struct mfb_window* window = mfb_open("00_basic_window", res_x, res_y);
 
@@ -72,9 +122,8 @@ int main(void)
 
     clear_screen(pixels, z_buffer, res_x, res_y);
 
-    Vector3 cam_pos = { 0.0, 3.0, 6.0 };
-    Vector3 up_dir = { 0.0, 1.0, 0.0 };
-    Vector3 look_dir = { 0.0, 0.0, -1.0 };
+    mfb_set_mouse_move_callback(window, mouse_move);
+    mfb_set_keyboard_callback(window, keyboard);
 
     float p = 0.0;
     float r = 6.0;
@@ -87,7 +136,7 @@ int main(void)
 
     do {
         // Vector3 cam_pos = { r * sin(p * M_PI), 3, r * cos(p * M_PI) };
-        Vector3 look_dir = { -sin(p * M_PI), 0.0, -cos(p * M_PI) };
+        // Vector3 look_dir = { -sin(p * M_PI), 0.0, -cos(p * M_PI) };
 
         look_dir = vec3_norm(&look_dir);
 
@@ -113,7 +162,7 @@ int main(void)
             }
         }
 
-        printf("X:%f Y:%f Z:%f\n", cam_pos.x, cam_pos.y, cam_pos.z);
+        // printf("X:%f Y:%f Z:%f\n", cam_pos.x, cam_pos.y, cam_pos.z);
 
         p += 0.01;
         if (p > 2.0) {
