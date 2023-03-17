@@ -35,7 +35,7 @@ void render_point(Vector2 point, uint32_t pixels[], int res_x, int res_y)
 
 bool visible(Vector3 point, float depth)
 {
-    return point.z > 0.1;
+    return point.z > 1.0;
 }
 
 bool line_visible(Line3d line, float depth)
@@ -72,9 +72,9 @@ int main(void)
 
     clear_screen(pixels, z_buffer, res_x, res_y);
 
-    Vector3 cam_pos = { 0.0, 0.0, -4.0 };
+    Vector3 cam_pos = { 0.0, 3.0, 6.0 };
     Vector3 up_dir = { 0.0, 1.0, 0.0 };
-    Vector3 look_dir = { 0.0, 0.0, 1.0 };
+    Vector3 look_dir = { 0.0, 0.0, -1.0 };
 
     float p = 0.0;
     float r = 6.0;
@@ -86,8 +86,8 @@ int main(void)
     float depth = fov_to_canvas_z(fov);
 
     do {
-        Vector3 cam_pos = { r * sin(p * M_PI), 3, r * cos(p * M_PI) };
-        Vector3 look_dir = { sin(p * M_PI), 0.0, cos(p * M_PI) };
+        // Vector3 cam_pos = { r * sin(p * M_PI), 3, r * cos(p * M_PI) };
+        Vector3 look_dir = { -sin(p * M_PI), 0.0, -cos(p * M_PI) };
 
         look_dir = vec3_norm(&look_dir);
 
@@ -112,6 +112,8 @@ int main(void)
                 }
             }
         }
+
+        printf("X:%f Y:%f Z:%f\n", cam_pos.x, cam_pos.y, cam_pos.z);
 
         p += 0.01;
         if (p > 2.0) {
