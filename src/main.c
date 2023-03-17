@@ -79,14 +79,6 @@ int main(void)
     float p = 0.0;
     float r = 6.0;
 
-    // Triangle triangles[] = {
-    //     { { -1, -1, 1 }, { 0, 1, 0 }, { 1, -1, 1 }, { { 255, 0, 0 }, { 0, 255, 0 }, { 0, 0, 255 } } },
-    //     { { 1, -1, 1 }, { 0, 1, 0 }, { 1, -1, -1 }, { { 255, 255, 0 }, { 255, 0, 0 }, { 0, 0, 0 } } },
-    //     { { 1, -1, -1 }, { 0, 1, 0 }, { -1, -1, -1 }, { { 0, 255, 0 }, { 0, 255, 0 }, { 0, 255, 0 } } },
-    //     { { -1, -1, -1 }, { 0, 1, 0 }, { -1, -1, 1 }, { { 0, 128, 255 }, { 128, 0, 255 }, { 128, 0, 255 } } },
-    //     // { { -1, -1, -1 }, { 0, 2, -1 }, { 1, -1, 1 }, { { 0, 0, 0 }, { 255, 255, 255 }, { 0, 0, 0 } } },
-    // };
-
     Triangle* triangles = mesh.triangles;
 
     float fov
@@ -94,16 +86,8 @@ int main(void)
     float depth = fov_to_canvas_z(fov);
 
     do {
-        // Vector3 cam_pos = { r * sin(p * M_PI), 0, r * cos(p * M_PI) };
-        // Vector3 cam_pos = { 3 * sin(p * M_PI), 0, 4.0};
-        // Vector3 cam_pos = { 0.0, 3 * sin(p * M_PI), 4.0 };
-        // Vector3 cam_pos = { r * sin(p * M_PI), 0, r * cos(p * M_PI) };
-        // Vector3 cam_pos = { r * sin(p * M_PI), 3 * sin(p * M_PI), r * cos(p * M_PI) };
         Vector3 cam_pos = { r * sin(p * M_PI), 3, r * cos(p * M_PI) };
         Vector3 look_dir = { sin(p * M_PI), 0.0, cos(p * M_PI) };
-        // Vector3 look_dir = { sin(p * M_PI), 0.0, 1.0 };
-        // Vector3 look_dir = { 0.0, sin(p * M_PI), 1.0 };
-        // Vector3 look_dir = { 0, 0.0, 1.0 };
 
         look_dir = vec3_norm(&look_dir);
 
