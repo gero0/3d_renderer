@@ -14,6 +14,36 @@ static Vector3 cam_pos = { 0.0, 3.0, 6.0 };
 static Vector3 up_dir = { 0.0, 1.0, 0.0 };
 static Vector3 look_dir = { 0.0, 0.0, -1.0 };
 
+float pitch = 0.5;
+float yaw = 0.25;
+
+bool render_normals = false;
+float normal_scale = 0.1;
+
+void update_look_dir()
+{
+    if (pitch > 1.0) {
+        pitch = 0.0;
+    }
+
+    if (pitch < 0.0) {
+        pitch = 1.0;
+    }
+
+    if (yaw > 1.0) {
+        yaw = 0.0;
+    }
+
+    if (yaw < 0.0) {
+        yaw = 1.0;
+    }
+
+    look_dir.x = cos(yaw * 2 * M_PI) * cos(pitch * 2 * M_PI);
+    look_dir.y = sin(pitch * 2 * M_PI);
+    look_dir.z = sin(yaw * 2 * M_PI) * cos(pitch * 2 * M_PI);
+    look_dir = vec3_norm(&look_dir);
+    printf("PITCH: %f, YAW: %f, LOOK DIR: %f %f %f\n", pitch, yaw, look_dir.x, look_dir.y, look_dir.z);
+}
 
 float fov_to_canvas_z(float fov_deg)
 {
@@ -67,10 +97,12 @@ Line3d get_triangle_normal(Triangle* t, float scale)
 
 void keyboard(struct mfb_window* window, mfb_key key, mfb_key_mod mod, bool isPressed)
 {
-    float speed = 0.3;
-    float look_speed = 0.2;
+    float speed = 0.5;
+    float look_speed = 0.05;
 
-    // Remember to close the window in some way
+    if (!isPressed) {
+        return;
+    }
 
     if (key == KB_KEY_S) {
         Vector3 move_vec = vec3_scale(&look_dir, speed);
@@ -93,13 +125,19 @@ void keyboard(struct mfb_window* window, mfb_key key, mfb_key_mod mod, bool isPr
     } else if (key == KB_KEY_LEFT_CONTROL) {
         cam_pos.y -= speed;
     } else if (key == KB_KEY_LEFT) {
-        look_dir.x -= look_speed;
+        yaw -= look_speed;
+        update_look_dir();
     } else if (key == KB_KEY_RIGHT) {
-        look_dir.x += look_speed;
+        yaw += look_speed;
+        update_look_dir();
     } else if (key == KB_KEY_UP) {
-        look_dir.y += look_speed;
+        pitch += look_speed;
+        update_look_dir();
     } else if (key == KB_KEY_DOWN) {
-        look_dir.y -= look_speed;
+        pitch -= look_speed;
+        update_look_dir();
+    } else if (key == KB_KEY_N) {
+        render_normals = !render_normals;
     }
 }
 
@@ -111,7 +149,6 @@ void mouse_move(struct mfb_window* window, int x, int y)
 
 int main(void)
 {
-    bool render_normals = true;
     Mesh mesh;
     parse_obj_file("/home/gero/models/shrek.obj", &mesh);
     const int res_x = 640, res_y = 640;
@@ -150,7 +187,7 @@ int main(void)
 
         for (int i = 0; i < mesh.triangle_count; i++) {
             Triangle t = triangle_to_camspace(&triangles[i], &csm);
-            Line3d normal_line = get_triangle_normal(&t, 1.0);
+            Line3d normal_line = get_triangle_normal(&t, normal_scale);
             t = project_triangle(&t, depth);
             Vector3 proj_norm = triangle_normal(&t);
             if (triangle_visible(&t, depth, proj_norm)) {
