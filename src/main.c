@@ -1,4 +1,3 @@
-#include "MiniFB_enums.h"
 #include "algebra.h"
 #include "line.h"
 #include "mesh.h"
@@ -42,6 +41,7 @@ void render_point(Vector2 point, uint32_t pixels[], int res_x, int res_y)
 bool visible(Vector3 point, float depth)
 {
     return point.z > 1.0;
+    // return true;
 }
 
 bool line_visible(Line3d line, float depth)
@@ -67,8 +67,8 @@ Line3d get_triangle_normal(Triangle* t, float scale)
 
 void keyboard(struct mfb_window* window, mfb_key key, mfb_key_mod mod, bool isPressed)
 {
-    float speed = 0.2;
-    float look_speed = 0.05;
+    float speed = 0.3;
+    float look_speed = 0.2;
 
     // Remember to close the window in some way
 
@@ -111,9 +111,9 @@ void mouse_move(struct mfb_window* window, int x, int y)
 
 int main(void)
 {
-    bool render_normals = false;
+    bool render_normals = true;
     Mesh mesh;
-    parse_obj_file("/home/gero/amogus.obj", &mesh);
+    parse_obj_file("/home/gero/models/shrek.obj", &mesh);
     const int res_x = 640, res_y = 640;
     struct mfb_window* window = mfb_open("00_basic_window", res_x, res_y);
 
@@ -155,9 +155,9 @@ int main(void)
             Vector3 proj_norm = triangle_normal(&t);
             if (triangle_visible(&t, depth, proj_norm)) {
                 render_triangle(&t, pixels, z_buffer, res_x, res_y);
+                normal_line = project_line(normal_line, depth);
                 if (line_visible(normal_line, depth) && render_normals) {
-                    Line l = project_line(normal_line, depth);
-                    render_line(l, pixels, res_x, res_y);
+                    render_line(normal_line, pixels, res_x, res_y);
                 }
             }
         }

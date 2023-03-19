@@ -1,8 +1,14 @@
 #include "line.h"
 
-Line project_line(Line3d line, float depth)
+// Line project_line(Line3d line, float depth)
+// {
+//     Line l = { project(line.a, depth), project(line.b, depth) };
+//     return l;
+// }
+
+Line3d project_line(Line3d line, float depth)
 {
-    Line l = { project(line.a, depth), project(line.b, depth) };
+    Line3d l = { project3(line.a, depth), project3(line.b, depth) };
     return l;
 }
 
@@ -16,10 +22,10 @@ Line3d line_to_camspace(Line3d line, Matrix4 csm)
     return l;
 }
 
-void render_line(Line line, uint32_t pixels[], int res_x, int res_y)
+void render_line(Line3d line, uint32_t pixels[], int res_x, int res_y)
 {
-    Vector2i a = to_raster_space(line.a, res_x, res_y);
-    Vector2i b = to_raster_space(line.b, res_x, res_y);
+    Vector2i a = to_raster_space((Vector2) { line.a.x, line.a.y }, res_x, res_y);
+    Vector2i b = to_raster_space((Vector2) { line.b.x, line.b.y }, res_x, res_y);
 
     if (a.x == b.x) {
         int min_y = a.y < b.y ? a.y : b.y;
@@ -50,4 +56,3 @@ void render_line(Line line, uint32_t pixels[], int res_x, int res_y)
         }
     }
 }
-
