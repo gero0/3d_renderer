@@ -1,69 +1,35 @@
 #include "algebra.h"
 #include "mesh.h"
 #include "triangle.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int process_vertex(const char* line_buf, Vector3* v)
+bool process_vertex(const char* line_buf, Vector3* v)
 {
-    const char* delim = " ";
-    char line[256];
-    strcpy(line, line_buf);
-    char* token = strtok(line, delim);
-    //skip 'v'
-    token = strtok(NULL, delim);
-
-    float coords[3];
-    int i = 0;
-    while (token != NULL && i < 3) {
-        coords[i] = atof(token);
-        token = strtok(NULL, delim);
-        i++;
-    }
-
-    if (i == 3 && token == NULL) {
-        v->x = coords[0];
-        v->y = coords[1];
-        v->z = coords[2];
-        return 0;
-    }
-
-    puts("Parsing error: could not parse vertex");
-    return -1;
+    int result = sscanf(line_buf, "%*s %f %f %f", &v->x, &v->y, &v->z);
+    return result == 3;
 }
 
-int process_face(const char* line_buf, uint32_t* vert_ids)
+bool process_face(const char* line_buf, uint32_t* vert_ids)
 {
-    const char* delim = " ";
-    char line[256];
-    strcpy(line, line_buf);
-    char* token = strtok(line, delim);
-    //skip 'f'
-    token = strtok(NULL, delim);
+    char tokens[3][32];
+    int read = sscanf(line_buf, "%*s %s %s %s", tokens[0], tokens[1], tokens[2]);
 
-    char* vert_defs[3] = { 0, 0, 0 };
-
-    int i = 0;
-    while (token != NULL && i < 3) {
-        vert_defs[i] = malloc(16);
-        strcpy(vert_defs[i], token);
-        token = strtok(NULL, delim);
-        i++;
+    if (read < 3) {
+        return false;
     }
 
     for (int i = 0; i < 3; i++) {
-        if (vert_defs[i] == NULL) {
-            return -1;
+        int res = sscanf(tokens[i], "%u/%*u/%*u", &vert_ids[i]);
+        if (res < 1) {
+            return false;
         }
-        char* token = strtok(vert_defs[i], "/");
-        int id = atoi(token);
-        vert_ids[i] = id;
-        free(vert_defs[i]);
     }
 
-    return 0;
+    return true;
 }
 
 int parse_obj_file(const char* path, Mesh* mesh)
@@ -95,7 +61,8 @@ int parse_obj_file(const char* path, Mesh* mesh)
         if (line_buf[0] == 'v' && line_buf[1] == ' ') {
             Vector3 v;
             int result = process_vertex(line_buf, &v);
-            if (result != 0) {
+            if (!result) {
+                puts("Error while parsing vertex");
                 goto error;
             }
             verts[v_i] = v;
@@ -111,11 +78,14 @@ int parse_obj_file(const char* path, Mesh* mesh)
         if (line_buf[0] == 'f') {
             uint32_t vert_ids[3];
             int result = process_face(line_buf, vert_ids);
-            if (result == 0) {
-                Triangle t = { verts[vert_ids[0] - 1], verts[vert_ids[1] - 1], verts[vert_ids[2] - 1], { ColorGreen, ColorRed, ColorBlue } };
-                triangles[t_i] = t;
-                t_i++;
+            if (!result) {
+                puts("Error while parsing face");
+                goto error;
             }
+
+            Triangle t = { verts[vert_ids[0] - 1], verts[vert_ids[1] - 1], verts[vert_ids[2] - 1], { ColorGreen, ColorRed, ColorBlue } };
+            triangles[t_i] = t;
+            t_i++;
         }
     }
 
